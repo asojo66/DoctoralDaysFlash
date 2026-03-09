@@ -318,7 +318,7 @@ class Flash(Slide):
         text3 = Tex(r"Inconclusive results numerically [2]", r" $\rightarrow$ ", r"Let's find better criteria")
         text3[0].set_color(red_color)
         text3[2].set_color(green_color)
-        text4 = Tex(r"Only valid for Diagonalizable cases", r" $\rightarrow$ ", r"Let's generalize it. Symmetries")
+        text4 = Tex(r"Only valid for diagonalizable cases", r" $\rightarrow$ ", r"Let's generalize it. Symmetries")
         text4[0].set_color(red_color)
         text4[2].set_color(green_color)
 
@@ -337,7 +337,7 @@ class Flash(Slide):
                 Tex(r"Wolf, M., Eisert, J., Cubitt, T., \& Cirac, J. (2008).\\ \textit{Assessing Non-Markovian Quantum Dynamics.}\\ Phys. Rev. Lett., 101, 150402.", tex_environment="flushleft").scale(0.8),
                 Tex(r"\textbf{[2]}").scale(0.8),
                 Tex(r"Schnell, A., Eckardt, A., \& Denisov, S. (2020).\\ \textit{Is there a Floquet Lindbladian?}\\ Phys. Rev. B, 101, 100301.", tex_environment="flushleft").scale(0.8),
-            ).arrange_in_grid(3, 2, buff = 0.5, cell_alignment=LEFT).scale_to_fit_height(0.4*sets.height)\
+            ).arrange_in_grid(3, 2, buff = 0.5, cell_alignment=UP).scale_to_fit_height(0.4*sets.height)\
             
         sets_and_refs = VGroup(sets.copy().scale(0.5), refs).center().arrange(RIGHT, buff = 0.5).next_to(title_problem, DOWN, buff = 0.25)
 
