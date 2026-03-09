@@ -48,8 +48,12 @@ class Flash(Slide):
         #                  TITLE SCREEN
         # -----------------------------------------------
         
+        doctoral_days = Text("Doctoral Days. March 13, 2025").scale(1.1).to_edge(UP, buff = 0.5)
         title = Text(r"Floquet Theory applied to Lindbladian Open Quantum Systems")
-        authors = Text(r"Antonio de la M. Sojo López", use_svg_cache=True).scale(0.7)
+        authors = VGroup(
+            Text(r"Antonio de la M. Sojo López").scale(0.7),
+            Text(r"Supervisor: Jesús Casado Pascual").scale(0.7)
+        ).arrange(DOWN, buff = 0.15)
 
         # Logos 'n' stuff
         logo_us = ImageMobject("./assets/logos/logo_us.png").scale_to_fit_height(1)
@@ -78,6 +82,7 @@ class Flash(Slide):
             Write(title)
         )
         self.play(
+            FadeIn(doctoral_days, shift = DOWN),
             Write(authors),
             FadeIn(banners, shift = UP)
         )
@@ -228,7 +233,7 @@ class Flash(Slide):
         title_problem = Title("Is the Floquet Generator a Lindbladian?")
         title_problem.underline.color = black_color
 
-        cptp_rect = Rectangle(height = 5.5, width = 11, color = blue_color, fill_color = blue_color, fill_opacity=0.1)
+        cptp_rect = Rectangle(height = 5.5, width = 9, color = blue_color, fill_color = blue_color, fill_opacity=0.1)
         cptp_title = Tex(r"CPTP", color = blue_color).scale_to_fit_height(0.35).move_to(cptp_rect.get_top() + 0.35*DOWN)
         cptp_rect.set_z_index(1)
         cptp_title.set_z_index(1)
@@ -238,8 +243,8 @@ class Flash(Slide):
         )
 
         linbladian_rect = Rectangle(height = 4.25, width = 0.6*11, color = yellow_color, fill_color = yellow_color, fill_opacity=0.1)\
-            .shift(cptp_rect.width/6*RIGHT+0.5*DOWN)
-        linbladian_title = Tex(r"Lindbladian", color = yellow_color).scale_to_fit_height(0.35).move_to(linbladian_rect.get_top() + 0.35*DOWN)
+            .shift(cptp_rect.width/8*RIGHT+0.5*DOWN)
+        linbladian_title = Tex(r"Lindbladian $\mathcal{L}$", color = yellow_color).scale_to_fit_height(0.35).move_to(linbladian_rect.get_top() + 0.35*DOWN)
         linbladian_rect.set_z_index(2)
         linbladian_title.set_z_index(2)
         linbladian_set = VGroup(
@@ -248,8 +253,11 @@ class Flash(Slide):
         )
 
         TD_rect = Rectangle(height = 3, width = 0.25*11, color = green_color, fill_color = green_color, fill_opacity=0.1)\
-            .shift(cptp_rect.width/6*RIGHT-linbladian_rect.width/4*RIGHT+1*DOWN)
-        TD_title = Tex(r"Time Dep. $\mathcal{L}$", color = green_color).scale_to_fit_height(0.35).move_to(TD_rect.get_top() + 0.35*DOWN)
+            .shift(cptp_rect.width/8*RIGHT-linbladian_rect.width/4*RIGHT+1*DOWN)
+        TD_title = VGroup(
+            Tex(r"Non-Constant Gen.", color = green_color).scale(0.85),
+            MathTex(r"\mathcal{T}e^{\int d\tau\mathcal{L}(\tau)}", color = green_color)
+        ).arrange(DOWN, buff = 0.2).scale_to_fit_height(0.8).scale_to_fit_height(0.8).move_to(TD_rect.get_top() + 0.55*DOWN)
         TD_rect.set_z_index(3)
         TD_title.set_z_index(3)
         TD_set = VGroup(
@@ -258,8 +266,11 @@ class Flash(Slide):
         )
 
         ITD_rect = Rectangle(height = 3, width = 0.25*11, color = green_color, fill_color = green_color, fill_opacity=0.1)\
-            .shift(cptp_rect.width/6*RIGHT+linbladian_rect.width/4*RIGHT+1*DOWN)
-        ITD_title = Tex(r"Time Indep. $\mathcal{L}$", color = green_color).scale_to_fit_height(0.35).move_to(ITD_rect.get_top() + 0.35*DOWN)
+            .shift(cptp_rect.width/8*RIGHT+linbladian_rect.width/4*RIGHT+1*DOWN)
+        ITD_title = VGroup(
+            Tex(r"Constant Gen.", color = green_color),
+            MathTex(r"e^{t\mathcal{L}}", color = green_color)
+        ).arrange(DOWN, buff = 0.2).scale_to_fit_height(0.8).move_to(ITD_rect.get_top() + 0.55*DOWN)
         ITD_rect.set_z_index(3)
         ITD_title.set_z_index(3)
         ITD_set = VGroup(
@@ -278,25 +289,26 @@ class Flash(Slide):
         )
 
         sets = VGroup(cptp_set, linbladian_set, TD_set, ITD_set, uni_set).shift(0.5*DOWN)
-
-        self.play(FadeIn(uni_set))
+        
+        self.play(Write(title_problem), FadeIn(cptp_set))
         self.wait(0.3)
         self.next_slide()
         self.play(FadeIn(linbladian_set))
         self.wait(0.3)
         self.next_slide()
-        self.play(FadeIn(TD_set), FadeIn(ITD_set))
+        self.play(FadeIn(TD_set),FadeIn(ITD_set)) 
+        #self.play(FadeIn(ITD_set))
         self.wait(0.3)
         self.next_slide()
-        self.play(FadeIn(cptp_set))
+        self.play(FadeIn(uni_set))
         self.wait(0.3)
 
         self.next_slide(loop = True)
 
         loop_set = VGroup(ITD_set, uni_set)
         
-        self.play(loop_set.animate.scale(1.1))
-        self.play(loop_set.animate.scale(1/1.1))
+        self.play(loop_set.animate.scale(1.1), title_problem.animate.scale(1.1))
+        self.play(loop_set.animate.scale(1/1.1), title_problem.animate.scale(1/1.1))
 
         self.next_slide()
         text1 = Tex(r"Necessary and sufficient conditions given by [1]")
@@ -327,7 +339,7 @@ class Flash(Slide):
                 Tex(r"Schnell, A., Eckardt, A., \& Denisov, S. (2020).\\ \textit{Is there a Floquet Lindbladian?}\\ Phys. Rev. B, 101, 100301.", tex_environment="flushleft").scale(0.8),
             ).arrange_in_grid(3, 2, buff = 0.5, cell_alignment=LEFT).scale_to_fit_height(0.4*sets.height)\
             
-        sets_and_refs = VGroup(sets.copy().scale(0.5), refs).center().arrange(RIGHT, buff = 0.25).next_to(title_problem, DOWN, buff = 0.25)
+        sets_and_refs = VGroup(sets.copy().scale(0.5), refs).center().arrange(RIGHT, buff = 0.5).next_to(title_problem, DOWN, buff = 0.25)
 
         self.next_slide()
         self.play(
