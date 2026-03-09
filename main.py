@@ -9,6 +9,7 @@ black_color = "#323030"
 blue_color = "#6883FB"
 red_color = "#F1534D"
 green_color = "#5CB85C"
+yellow_color = "#ff6f1b"
 head_color = "#fcad63"
 highlight_color = "#fff691"
 
@@ -90,14 +91,14 @@ class Flash(Slide):
 
         title_floquet = Title("Motivation", include_underline=False)
 
-        ev_eq_u = MathTex(r"\dv{}{t}\ket{\Psi}(t) = -\frac{i}{\hbar}H(t)\ket{\Psi}(t)", tex_template=texTemplate)
+        ev_eq_u = MathTex(r"\dv{}{t}\ket{\Psi(t)} = -\frac{i}{\hbar}H(t)\ket{\Psi(t)}", tex_template=texTemplate)
         ev_eq_L = MathTex(r"\dv{}{t}\rho(t) = \mathcal{L}(t)\rho(t)", tex_template=texTemplate)
-        prop_U = MathTex(r"\ket{\Psi}(t) = U(t,t_0)\ket{\Psi}(t_0) (\in U(n))", tex_template=texTemplate)
-        prop_L = MathTex(r"\rho(t_0)=\mathcal{E}(t,t_0)\rho(t_0) (\in \text{CPTP Map})", tex_template=texTemplate)
+        prop_U = MathTex(r"\ket{\Psi(t)} = U(t,t_0)\ket{\Psi(t_0)} \text{ (Unitary)}", tex_template=texTemplate)
+        prop_L = MathTex(r"\rho(t_0)=\mathcal{E}(t,t_0)\rho(t_0) \text{ (CPTP Map)}", tex_template=texTemplate)
         periodic_row = [Tex(r"If $H(t+T) = H(t)$"), Tex(r"If $\mathcal{L}(t+T) = \mathcal{L}(t)$")]
         stroboscopic = [
-                    MathTex(r"U(t_0+kT,t_0) = ", r"e^{-\frac{i}{\hbar}kT H_\text{eff}}"),
-                    MathTex(r"\mathcal{E}(t_0+kT,t_0) = ", r"e^{kT\mathcal{G}_\text{eff}}")
+                    MathTex(r"U(nT, 0) = ", r"e^{-\frac{i}{\hbar}nT H_\text{eff}}"),
+                    MathTex(r"\mathcal{E}(nT, 0) = ", r"e^{nT \mathcal{G}_\text{eff}}")
         ]
 
 
@@ -124,7 +125,7 @@ class Flash(Slide):
         ).scale_to_fit_width(screen_width).shift(0.5*DOWN)
         #floquet_table.remove(*floquet_table.get_horizontal_lines())
 
-        footnotes = Tex(r"$U(n)\equiv$ Unitary Group; CPTP $\equiv$ Completely Positive Trace Preserving Map")\
+        footnotes = Tex(r"CPTP $\equiv$ Completely Positive Trace Preserving Map")\
         .scale(0.7).next_to(floquet_table, DOWN, buff = 0.35)
 
         slide = VGroup(
@@ -157,7 +158,7 @@ class Flash(Slide):
         )
         connection_U.add(
             Text("Floquet Engineering").scale(0.45).set_color(red_color)\
-                .next_to(connection_U[-1], LEFT, buff = 0.1).shift(0.15*DOWN)
+                .next_to(connection_U[-1], LEFT, buff = 0).shift(0.15*DOWN+0.1*RIGHT)
         )
 
         self.remove(periodic_row[0])
@@ -189,8 +190,8 @@ class Flash(Slide):
             Arrow(connection_L[0].get_bottom(), connection_L[-1].get_top(), buff = 0, color = red_color)
         )
         connection_L.add(
-            Text("Floquet Engineering").scale(0.45).set_color(red_color)\
-                .next_to(connection_L[-1], LEFT, buff = 0.1).shift(0.15*DOWN)
+            Text("Floquet Engineering?").scale(0.4).set_color(red_color)\
+                .next_to(connection_L[-1], LEFT, buff = 0).shift(0.15*DOWN+0.1*RIGHT)
         )
 
         self.remove(periodic_row[1])
@@ -227,64 +228,85 @@ class Flash(Slide):
         title_problem = Title("Is the Floquet Generator a Lindbladian?")
         title_problem.underline.color = black_color
 
-        cptp_rect = Rectangle(height = 5.5, width = 8.5, color = blue_color, fill_color = blue_color, fill_opacity=0.1)
+        cptp_rect = Rectangle(height = 5.5, width = 11, color = blue_color, fill_color = blue_color, fill_opacity=0.1)
         cptp_title = Tex(r"CPTP", color = blue_color).scale_to_fit_height(0.35).move_to(cptp_rect.get_top() + 0.35*DOWN)
-        cptp_math = MathTex(r"\mathcal{E} = \mathcal{T}e^{\int d\tau \mathcal{L}(\tau)}", color = blue_color)\
-            .scale_to_fit_height(0.5)
+        cptp_rect.set_z_index(1)
+        cptp_title.set_z_index(1)
         cptp_set = VGroup(
             cptp_title,
-            cptp_math,
             cptp_rect
-        ).set_z_index(1)
+        )
 
-        ticptp_rect = Rectangle(height = 4, width = 4, color = green_color, fill_color = green_color, fill_opacity=0.1)
-        ticptp_title = Tex(r"Time Indp. $\mathcal{L}$ CPTP", color = green_color).scale_to_fit_height(0.3).move_to(ticptp_rect.get_top() + 0.35*DOWN)
-        ticptp_math = MathTex(r"\mathcal{E} = e^{t\mathcal{L}}", color = green_color)\
-            .scale_to_fit_height(0.5).move_to(ticptp_rect.get_center())
-        
-        ticptp_set = VGroup(
-            ticptp_title,
-            ticptp_math,
-            ticptp_rect
-        ).shift(2*RIGHT+0.5*DOWN).set_z_index(2)
+        linbladian_rect = Rectangle(height = 4.25, width = 0.6*11, color = yellow_color, fill_color = yellow_color, fill_opacity=0.1)\
+            .shift(cptp_rect.width/6*RIGHT+0.5*DOWN)
+        linbladian_title = Tex(r"Lindbladian", color = yellow_color).scale_to_fit_height(0.35).move_to(linbladian_rect.get_top() + 0.35*DOWN)
+        linbladian_rect.set_z_index(2)
+        linbladian_title.set_z_index(2)
+        linbladian_set = VGroup(
+            linbladian_title,
+            linbladian_rect
+        )
 
-        cptp_math.move_to(ticptp_rect.get_center()).shift(2*ticptp_rect.get_center()[0]*LEFT)
-        ticptp_math.shift(0.5*UP)
+        TD_rect = Rectangle(height = 3, width = 0.25*11, color = green_color, fill_color = green_color, fill_opacity=0.1)\
+            .shift(cptp_rect.width/6*RIGHT-linbladian_rect.width/4*RIGHT+1*DOWN)
+        TD_title = Tex(r"Time Dep. $\mathcal{L}$", color = green_color).scale_to_fit_height(0.35).move_to(TD_rect.get_top() + 0.35*DOWN)
+        TD_rect.set_z_index(3)
+        TD_title.set_z_index(3)
+        TD_set = VGroup(
+            TD_title,
+            TD_rect
+        )
 
-        uni_rect = Rectangle(height = 1.75, width = 3, color = red_color, fill_color = red_color, fill_opacity=0.1)
-        uni_title = Tex(r"Unitary", color = red_color).scale_to_fit_height(0.35).move_to(uni_rect.get_top() + 0.35*DOWN)
-        uni_math = MathTex(r"U = e^{itH}", color = red_color)\
-            .scale_to_fit_height(0.5).move_to(uni_rect.get_center()+0.15*DOWN)
-        
+        ITD_rect = Rectangle(height = 3, width = 0.25*11, color = green_color, fill_color = green_color, fill_opacity=0.1)\
+            .shift(cptp_rect.width/6*RIGHT+linbladian_rect.width/4*RIGHT+1*DOWN)
+        ITD_title = Tex(r"Time Indep. $\mathcal{L}$", color = green_color).scale_to_fit_height(0.35).move_to(ITD_rect.get_top() + 0.35*DOWN)
+        ITD_rect.set_z_index(3)
+        ITD_title.set_z_index(3)
+        ITD_set = VGroup(
+            ITD_title,
+            ITD_rect
+        )
+
+        uni_rect = Rectangle(height = 1.5, width = 2, color = red_color, fill_color = red_color, fill_opacity=0.1)\
+            .move_to(ITD_rect).shift(0.5*DOWN)
+        uni_title = Tex(r"Unitary", color = red_color).scale_to_fit_height(0.35).move_to(uni_rect)
+        uni_rect.set_z_index(4)
+        uni_title.set_z_index(4)
         uni_set = VGroup(
             uni_title,
-            uni_math,
             uni_rect
-        ).shift(ticptp_set.get_center()+1*DOWN).set_z_index(3)
+        )
 
-        tdcptp_title = Tex(r"Time Dep. $\mathcal{L}$ CPTP", color = blue_color).scale_to_fit_height(0.3)\
-            .move_to(ticptp_rect.get_top() + 0.35*DOWN).shift(2*ticptp_title.get_x()*LEFT)
+        sets = VGroup(cptp_set, linbladian_set, TD_set, ITD_set, uni_set).shift(0.5*DOWN)
 
-        sets = VGroup(cptp_set, ticptp_set, uni_set, tdcptp_title).shift(0.5*DOWN)
-        
-        self.play(Write(title_problem))
-        self.play(Create(uni_rect), Write(uni_title), Write(uni_math))
-        
+        self.play(FadeIn(uni_set))
+        self.wait(0.3)
         self.next_slide()
-        self.play(Create(cptp_rect), Write(cptp_title), Write(cptp_math))
+        self.play(FadeIn(linbladian_set))
+        self.wait(0.3)
+        self.next_slide()
+        self.play(FadeIn(TD_set), FadeIn(ITD_set))
+        self.wait(0.3)
+        self.next_slide()
+        self.play(FadeIn(cptp_set))
+        self.wait(0.3)
+
+        self.next_slide(loop = True)
+
+        loop_set = VGroup(ITD_set, uni_set)
+        
+        self.play(loop_set.animate.scale(1.1))
+        self.play(loop_set.animate.scale(1/1.1))
 
         self.next_slide()
-        self.play(Create(ticptp_rect), Write(ticptp_title), Write(ticptp_math), Write(tdcptp_title))
-        
-
-        text1 = Tex(r"Necessary and sufficient conditions given by [Wolf et al. 2008]")
-        text2 = Tex(r"Hard to use analytically", r" $\rightarrow$ ", r"Propose solvable models")
+        text1 = Tex(r"Necessary and sufficient conditions given by [1]")
+        text2 = Tex(r"Hard to use analytically", r" $\rightarrow$ ", r"Let's propose solvable models")
         text2[0].set_color(red_color)
         text2[2].set_color(green_color)
-        text3 = Tex(r"Inconclusive results numerically [Schnell et al. 2020]", r" $\rightarrow$ ", r"Find new conditions")
+        text3 = Tex(r"Inconclusive results numerically [2]", r" $\rightarrow$ ", r"Let's find better criteria")
         text3[0].set_color(red_color)
         text3[2].set_color(green_color)
-        text4 = Tex(r"Only valid for Diagonalizable cases", r" $\rightarrow$ ", r"Generalize it. Symmetries")
+        text4 = Tex(r"Only valid for Diagonalizable cases", r" $\rightarrow$ ", r"Let's generalize it. Symmetries")
         text4[0].set_color(red_color)
         text4[2].set_color(green_color)
 
@@ -298,9 +320,19 @@ class Flash(Slide):
         text1.shift(0.25*UP)
         under1 = Underline(text1).set_color(black_color)
 
+        refs = VGroup(
+                Tex(r"\textbf{[1]}").scale(0.8),
+                Tex(r"Wolf, M., Eisert, J., Cubitt, T., \& Cirac, J. (2008).\\ \textit{Assessing Non-Markovian Quantum Dynamics.}\\ Phys. Rev. Lett., 101, 150402.", tex_environment="flushleft").scale(0.8),
+                Tex(r"\textbf{[2]}").scale(0.8),
+                Tex(r"Schnell, A., Eckardt, A., \& Denisov, S. (2020).\\ \textit{Is there a Floquet Lindbladian?}\\ Phys. Rev. B, 101, 100301.", tex_environment="flushleft").scale(0.8),
+            ).arrange_in_grid(3, 2, buff = 0.5, cell_alignment=LEFT).scale_to_fit_height(0.4*sets.height)\
+            
+        sets_and_refs = VGroup(sets.copy().scale(0.5), refs).center().arrange(RIGHT, buff = 0.25).next_to(title_problem, DOWN, buff = 0.25)
+
         self.next_slide()
         self.play(
-            sets.animate.move_to(0.2*sets.height*UP).scale(0.5),
+            sets.animate.move_to(sets_and_refs[0]).scale(0.5),
+            Write(refs),
             Write(wolf_data[0]), Create(under1)
         )
 
@@ -315,15 +347,7 @@ class Flash(Slide):
         self.next_slide()
         self.remove_all()
 
-        end_slide = VGroup(
-            Tex(r"Thank you for your attention! \\ Any questions?").scale(1.25),
-            VGroup(
-                Tex(r"\textbf{[Wolf et al. 2008]}").scale(0.8),
-                Tex(r"Wolf, M., Eisert, J., Cubitt, T., \& Cirac, J. (2008).\\ \textit{Assessing Non-Markovian Quantum Dynamics} Phys. Rev. Lett., 101, 150402.", tex_environment="flushleft").scale(0.8),
-                Tex(r"\textbf{[Schnell et al. 2020]}").scale(0.8),
-                Tex(r"Schnell, A., Eckardt, A., \& Denisov, S. (2020).\\ \textit{Is there a Floquet Lindbladian?} Phys. Rev. B, 101, 100301.", tex_environment="flushleft").scale(0.8),
-            ).arrange_in_grid(3, 2, buff = 0.5, cell_alignment=LEFT).scale_to_fit_width(13)
-        ).arrange(DOWN, buff = 1)
+        end_slide = Tex(r"Thank you for your attention! \\ Any questions?").scale(1.25)
 
         self.play(Write(end_slide))
         self.wait(0.1)
@@ -331,6 +355,50 @@ class Flash(Slide):
         # -----------------------------------------------
         #                   EXTRAS
         # -----------------------------------------------
+
+        self.next_slide()
+        self.remove_all()
+
+        title_floquet_ext = Title("Floquet Theorem")
+        title_floquet_ext.underline.color = black_color
+
+        text1 = Tex(r"Consider the system of linear diff. equations for $M(t)\in\mathcal{M}_n(\mathbb{C})$")
+        system = MathTex(r"\frac{d}{dt}M(t) = C(t)M(t);\quad M(0) = I_n;\qquad C(t)\in\mathcal{M}_n(\mathbb{C})")
+        text2 = Tex(r"If $M(t) = M(t+T)$ for some fixed $T\in\mathbb{R}$, then:")
+        floquet = MathTex(r"M(t) = P(t)e^{t G}\text{ with } P(t) = P(t+T)")
+
+        floquetslide = VGroup(text1, system, text2, floquet).arrange(DOWN, buff = 0.5)
+
+        self.add(
+            title_floquet_ext,
+            floquetslide
+        )
+
+        self.wait(1)
+
+        self.next_slide()
+        self.remove_all()
+
+        title_cp = Title("Completely Positive Maps")
+        title_cp.underline.color = black_color
+
+        big_sys = Ellipse(8, 4, color = red_color, fill_color = red_color, fill_opacity = 1)
+        im_sys = Ellipse(4, 3, color = blue_color, fill_color = blue_color, fill_opacity = 1).shift(1.5*RIGHT)
+
+        eq = MathTex(r"\mathcal{E}",r"\otimes", r"\mathcal{I}_\text{n}", r"\text{ must map density matrices to density matrices}").next_to(big_sys, DOWN, buff = 1)
+        eq[0].set_color(blue_color)
+        eq[2].set_color(red_color)
+
+        self.add(
+            title_cp,
+            big_sys, 
+            im_sys,
+            Text("System").scale(0.5).move_to(im_sys),
+            Text(r"Ancilla System").scale(0.5).move_to(big_sys).shift(2*LEFT),
+            eq
+        )
+
+        self.wait(1)
 
         self.next_slide()
         self.remove_all()
