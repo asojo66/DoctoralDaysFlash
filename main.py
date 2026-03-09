@@ -10,6 +10,7 @@ blue_color = "#6883FB"
 red_color = "#F1534D"
 green_color = "#5CB85C"
 head_color = "#fcad63"
+highlight_color = "#fff691"
 
 Text.set_default(color = black_color)
 Tex.set_default(color = black_color)
@@ -87,31 +88,41 @@ class Flash(Slide):
         self.next_slide()
         self.remove_all()
 
-        title_floquet = Title("Floquet Theory", include_underline=False)
+        title_floquet = Title("Motivation", include_underline=False)
+
+        ev_eq_u = MathTex(r"\dv{}{t}\ket{\Psi}(t) = -\frac{i}{\hbar}H(t)\ket{\Psi}(t)", tex_template=texTemplate)
+        ev_eq_L = MathTex(r"\dv{}{t}\rho(t) = \mathcal{L}(t)\rho(t)", tex_template=texTemplate)
+        prop_U = MathTex(r"\ket{\Psi}(t) = U(t,t_0)\ket{\Psi}(t_0) (\in U(n))", tex_template=texTemplate)
+        prop_L = MathTex(r"\rho(t_0)=\mathcal{E}(t,t_0)\rho(t_0) (\in \text{CPTP Map})", tex_template=texTemplate)
+        periodic_row = [Tex(r"If $H(t+T) = H(t)$"), Tex(r"If $\mathcal{L}(t+T) = \mathcal{L}(t)$")]
+        stroboscopic = [
+                    MathTex(r"U(t_0+kT,t_0) = ", r"e^{-\frac{i}{\hbar}kT H_\text{eff}}"),
+                    MathTex(r"\mathcal{E}(t_0+kT,t_0) = ", r"e^{kT\mathcal{G}_\text{eff}}")
+        ]
+
 
         floquet_table = MobjectTable(
             [
                 [MathTex(r"\ket{\Psi}\in\mathcal{H}", tex_template=texTemplate), MathTex(r"\rho\in L(\mathcal{H})", tex_template=texTemplate)],
-                [MathTex(r"\dv{}{t}\ket{\Psi} = -\frac{i}{\hbar}H(t)\ket{\Psi}", tex_template=texTemplate), MathTex(r"\dv{}{t}\rho = \mathcal{L}(t)\rho", tex_template=texTemplate)],
-                [MathTex(r"U(t,t_0) \in U(n)"), MathTex(r"\mathcal{E}(t,t_0) \in \text{CPTP Map}")],
                 [
                     VGroup(
-                        MathTex(r"H(t+T) = H(t)"),
-                        MathTex(r"U(t,t_0) = P(t,t_0)e^{-\frac{i}{\hbar}(t-t_0)H_\text{eff}}"),
-                        Tex(r"$H_\text{eff}$ is Hermitian")
-                    ).arrange(DOWN, buff = 0.3),
+                        ev_eq_u,
+                        prop_U
+                    ).arrange(DOWN, buff = 0.5)
+                ,
                     VGroup(
-                        MathTex(r"\mathcal{L}(t+T) = \mathcal{L}(t)"),
-                        MathTex(r"\mathcal{E}(t,t_0) = \mathcal{P}(t,t_0)e^{(t-t_0)\mathcal{G}_\text{eff}}"),
-                        Tex(r"$\mathcal{G}_\text{eff}$ is ???")
-                    ).arrange(DOWN, buff = 0.3)
-                ]
+                        ev_eq_L,
+                        prop_L
+                    ).arrange(DOWN, buff = 0.5)
+                ],
+                periodic_row,
+                stroboscopic
             ],
             col_labels=[Text("Closed"), Text("Open Lindbladian")],
-            row_labels=[Text("State"), Text("Evolution"), Text("Propagator"), Text("Floquet")],
+            row_labels=[Text("State"), Text("Evolution"), Text("HOLA").set_opacity(0.0), Text("Floquet")],
             line_config = {"color": black_color}
         ).scale_to_fit_width(screen_width).shift(0.5*DOWN)
-        floquet_table.remove(*floquet_table.get_horizontal_lines())
+        #floquet_table.remove(*floquet_table.get_horizontal_lines())
 
         footnotes = Tex(r"$U(n)\equiv$ Unitary Group; CPTP $\equiv$ Completely Positive Trace Preserving Map")\
         .scale(0.7).next_to(floquet_table, DOWN, buff = 0.35)
@@ -127,18 +138,74 @@ class Flash(Slide):
             Write(floquet_table.get_col_labels()),
             Write(floquet_table.get_row_labels()),
             Create(floquet_table.get_vertical_lines()),
+            Create(floquet_table.get_horizontal_lines()),
             Write(footnotes)
         )
         
-        for row in floquet_table.get_rows()[1:]:
+        for obj in floquet_table.get_columns()[1][1:]:
             self.next_slide()
-            self.play(Write(row[1:]))
+            self.play(Write(obj))
 
         self.next_slide()
+        
+        connection_U = VGroup(
+            Brace(ev_eq_u, color = red_color),
+            SurroundingRectangle(stroboscopic[0][-1], color = red_color)
+        )
+        connection_U.add(
+            Arrow(connection_U[0].get_bottom(), connection_U[-1].get_top(), buff = 0, color = red_color)
+        )
+        connection_U.add(
+            Text("Floquet Engineering").scale(0.45).set_color(red_color)\
+                .next_to(connection_U[-1], LEFT, buff = 0.1).shift(0.15*DOWN)
+        )
+
+        self.remove(periodic_row[0])
+        self.play(Create(connection_U))
+
+        self.wait(0.3)
+
+        self.next_slide()
+        self.add(periodic_row[0])
+        self.remove(connection_U)
+        self.play(Write(floquet_table.get_columns()[2][1]))
+
+        for obj in floquet_table.get_columns()[2][2:-1]:
+            self.next_slide()
+            self.play(Write(obj))
+
+        self.next_slide()
+        self.add(floquet_table.add_highlighted_cell((5,3), color = highlight_color))
+        self.play(
+            Write(floquet_table.get_columns()[2][-1]))
+
+        self.next_slide()
+        
+        connection_L = VGroup(
+            Brace(ev_eq_L, color = red_color),
+            SurroundingRectangle(stroboscopic[1][-1], color = red_color)
+        )
+        connection_L.add(
+            Arrow(connection_L[0].get_bottom(), connection_L[-1].get_top(), buff = 0, color = red_color)
+        )
+        connection_L.add(
+            Text("Floquet Engineering").scale(0.45).set_color(red_color)\
+                .next_to(connection_L[-1], LEFT, buff = 0.1).shift(0.15*DOWN)
+        )
+
+        self.remove(periodic_row[1])
+        self.play(Create(connection_L))
+
+        self.wait(0.3)
+
+        self.next_slide()
+        self.add(periodic_row[1])
+        self.remove(connection_L)
+
         self.play(
             Transform(
                 floquet_table.get_rows()[-1][1],
-                Tex(r"$H_\text{eff}$ is Hermitian").scale(1).set_color(green_color).move_to(floquet_table.get_rows()[-1][1])
+                Tex(r"$H_\text{eff}$ is a Hamiltonian").scale(1).set_color(green_color).move_to(floquet_table.get_rows()[-1][1])
             )
         )
 
@@ -149,7 +216,6 @@ class Flash(Slide):
                 Tex(r"$\mathcal{G}_\text{eff}$ is ???").scale(1.5).set_color(red_color).move_to(floquet_table.get_rows()[-1][2])
             )
         )
-
 
         # -----------------------------------------------
         #        Problem Statement and current solution
@@ -241,36 +307,6 @@ class Flash(Slide):
         for obj in wolf_data[1:]:
             self.next_slide()
             self.play(Write(obj))
-
-        # -----------------------------------------------
-        #              Floquet Engineering
-        # -----------------------------------------------
-
-        self.next_slide()
-        self.remove_all()
-
-        title_engine = Title("Floquet Engineering")   
-        title_engine.underline.color = black_color
-
-        text1 = Tex(r"By tuning the parameters of a periodic driving $V(t)$")
-        eq1 = MathTex(r"H(t) = H_0 + V(t)")
-        text2 = Tex(r"we can ``engineer'' an effective Hamiltonian $H_{\text{eff}}$ with \\ desirable properties.", tex_environment="flushleft")
-        text3 = Tex(r"At stroboscopic times $t_0 + kT$ the system behaves as \\ we wanted:", tex_environment="flushleft")
-        eq2 = MathTex(r"U(t_0+kT, t_0) = e^{-i\frac{kT}{\hbar}H_F}")
-        text4 = Tex(r"It is useful to extend this to \textbf{Lindbladian} systems").scale(1.2).set_color(green_color)
-        VGroup(text1, eq1, text2, text3, eq2, text4).arrange(DOWN, buff=0.5).scale_to_fit_height(5.5).to_edge(DOWN, buff = 0.5)
-        text1.to_edge(LEFT, buff = 1)
-        text2.to_edge(LEFT, buff = 1)
-        text3.to_edge(LEFT, buff = 1)
-        
-        self.play(Write(title_engine))
-        self.play(Write(text1), Write(eq1), Write(text2))
-
-        self.next_slide()
-        self.play(Write(text3), Write(eq2))
-        
-        self.next_slide()
-        self.play(Write(text4))
         
         # -----------------------------------------------
         #                   Bye Bye
